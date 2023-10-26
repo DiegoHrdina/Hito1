@@ -19,4 +19,48 @@ Se definieron los parametros asociados a los valores del activo "CENCOSUD", para
 
 ## Black-Scholes
 
-ccc
+```{r}
+library(tidyverse)
+library(tidyquant)  
+end <- as_date("2023-10-24")
+CENCOSUD <- tq_get("CENCOSUD.SN", get = "stock.prices", from = "2020-01-01", to = end)
+
+```
+
+```{r}
+# Cálculo de la desviación estándar
+desviacion_estandar <- sd(CENCOSUD$close)
+
+# Cálculo de la media
+media <- mean(CENCOSUD$close)
+
+# Cálculo del máximo
+maximo <- max(CENCOSUD$close)
+
+# Imprimir los resultados
+cat("Desviación Estándar:", desviacion_estandar, "\n")
+cat("Media:", media, "\n")
+cat("Máximo:", maximo, "\n")
+
+```
+
+```{r}
+# Datos proporcionados
+S <- tail(CENCOSUD$close, 1)  # Precio actual del activo subyacente
+K <- 100  # Precio de ejercicio de la opción
+R <- 0.005  # Tasa de interés libre de riesgo (0,5%)
+t <- 1  # Tiempo hasta la expiración de la opción (1 año)
+sigma <- sd(CENCOSUD$close)  # Volatilidad del precio del activo subyacente (usamos la desviación estándar)
+
+# Calcular d1 y d2
+d1 <- (log(S / K) + (R + (sigma^2) / 2) * t) / (sigma * sqrt(t))
+d2 <- d1 - (sigma * sqrt(t))
+
+# Calcular el precio de la opción de compra
+precio_opcion <- S * pnorm(d1) - K * exp(-R * t) * pnorm(d2)
+
+# Imprimir el resultado
+cat("Precio de la opción de compra (Call Option):", precio_opcion, "\n")
+
+
+```
