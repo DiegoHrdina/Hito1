@@ -22,7 +22,7 @@ Se definieron los parametros asociados a los valores del activo "CENCOSUD", para
 ```{r}
 library(tidyverse)
 library(tidyquant)  
-end <- as_date("2023-10-24")
+end <- as_date("2023-10-25")
 CENCOSUD <- tq_get("CENCOSUD.SN", get = "stock.prices", from = "2020-01-01", to = end)
 
 ```
@@ -47,20 +47,24 @@ cat("Máximo:", maximo, "\n")
 ```{r}
 # Datos proporcionados
 S <- tail(CENCOSUD$close, 1)  # Precio actual del activo subyacente
-K <- 100  # Precio de ejercicio de la opción
+K <- 1400  # Precio de ejercicio de la opción
 R <- 0.005  # Tasa de interés libre de riesgo (0,5%)
 t <- 1  # Tiempo hasta la expiración de la opción (1 año)
-sigma <- sd(CENCOSUD$close)  # Volatilidad del precio del activo subyacente (usamos la desviación estándar)
+
+sigma <- (desviacion_estandar/media)  # Volatilidad del precio del activo subyacente (usamos la desviación estándar)
 
 # Calcular d1 y d2
 d1 <- (log(S / K) + (R + (sigma^2) / 2) * t) / (sigma * sqrt(t))
 d2 <- d1 - (sigma * sqrt(t))
 
 # Calcular el precio de la opción de compra
-precio_opcion <- S * pnorm(d1) - K * exp(-R * t) * pnorm(d2)
+precio_opcion <- (S * pnorm(d1) - K * exp(-R * t) * pnorm(d2))
 
 # Imprimir el resultado
 cat("Precio de la opción de compra (Call Option):", precio_opcion, "\n")
 
-
+cat("Precio actual:", S, "\n")
+cat("d1:", d1, "\n")
+cat("d2:", d2, "\n")
+cat("sigma:", sigma, "\n")
 ```
