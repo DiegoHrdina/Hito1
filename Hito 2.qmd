@@ -5,6 +5,433 @@ format: html
 editor: visual
 ---
 
+```{r}
+#| message: false
+#| echo: false
+# Esto ya debiera estar cargado en el proyecto en posit.cloud
+# devtools::install_github("business-science/tidyquant")
+# Loads tidyquant, lubridate, xts, quantmod, TTR, and PerformanceAnalytics
+library(tidyverse)
+library(tidyquant)  
+```
+
+## Descripción Activo y Contexto (Hito 1)
+
+### Definición
+
+El sector inmobiliario en Chile juega un papel imoortante en la economía chilena, aportando al PIB (Producto Interno Bruto)con un 13%. Este sector engloba una amplia gama de actividades, que van desde la administración de propiedades de diferentes tipos, desde comerciales hasta industriales, residenciales y agrícolas.
+
+En este informe, nos enfocamos en cómo el sector inmobiliario se relaciona con Cencosud, una empresa que opera en el sector minorista y en centros comerciales, y de manera directa igual con el sector inmobiliario.
+
+La capacidad de adaptarse continuamente a las necesidades cambiantes de la sociedad y la economía es un aspecto clave en este sector y se puede ver reflejado en el desarrollo de nuevos proyectos, la renovación de centros comerciales y la expansión de propiedades residenciales e industriales.
+
+Es importante destacar que, como menciona Wang y NG (2020), en el contexto de la competencia actual entre el comercio tradicional y el comercio electrónico (e-commerce), el sector inmobiliario también se ve influido. El crecimiento constante del e-commerce y la creciente competencia entre estos dos sectores han generado una demanda adicional de espacios físicos. Tanto el e-commerce como el comercio tradicional necesitan presencia física para atraer a más clientes y tener un mayor control sobre sus operaciones.
+
+Esta competencia en la expansión física tiene múltiples implicaciones. Por un lado, puede afectar el valor de las propiedades, ya que la llegada de grandes empresas minoristas puede aumentar la demanda y, por ende, los precios de alquiler en áreas circundantes. Además, esta competencia puede influir en las relaciones entre empresas inmobiliarias y constructoras, así como en la planificación urbana y el desarrollo de áreas locales.
+
+Es decir, la competencia en la expansión física entre el comercio tradicional y el e-commerce está intrínsecamente relacionada con el sector inmobiliario en Chile. Esta competencia tiene un impacto significativo en la adquisición, desarrollo y gestión de propiedades comerciales, lo que a su vez afecta al sector inmobiliario en su conjunto.
+
+Además, el sector inmobiliario se caracteriza por bienes escasos, que se distinguen por su inamovilidad y su resistencia a daños. La escasez de estos activos genera una alta competencia y los expone a la influencia de externalidades, que pueden afectar tanto de manera positiva como negativa. Entre las principales virtudes de estos activos destaca su capacidad de servir como cobertura natural frente a la inflación, y en el caso de Chile, este mercado se encuentra indexado a la Unidad de Fomento (UF). Debido a su tangibilidad, estos activos conservan valor residual con el tiempo. Si bien suelen ofrecer altos retornos, presentan una liquidez limitada.
+
+```{r ETL}
+#| echo: false
+# Alternativamente Use FANG data set
+# data("FANG") 
+end <- as_date("2022-12-31")
+# Get AAPL and AMZN Stock Prices
+# AAPL <- tq_get("AAPL", get = "stock.prices", from = "2015-09-01", to = end)
+# AMZN <- tq_get("AMZN", get = "stock.prices", from = "2000-01-01", to = end)
+CENCOSUD <- tq_get("CENCOSUD.SN", get = "stock.prices", from = "2000-01-01", to = end)
+FALABELLA <- tq_get("FALABELLA.SN", get = "stock.prices", from = "2000-01-01", to = end)
+CAP <- tq_get("CAP.SN", get = "stock.prices", from = "2000-01-01", to = end)
+```
+
+En el sector minorista e inmobiliario de América Latina, Cencosud S.A. se destaca como una de las empresas líderes y más conocidas. Su presencia se extiende a los cinco mercados más desarrollados de la región y es conocida por ofrecer una variedad de formatos y marcas mediante un enfoque estratégico en el comercio minorista. Con sede en Chile, la compañía opera en Argentina, Brasil, Chile, Colombia y Perú, empleando a más de 116,000 trabajadores. A finales de 2021, la empresa administraría un total de 915 supermercados, 108 tiendas de mejoramiento del hogar, 49 tiendas por departamento y 67 centros comerciales.
+
+El activo CENCOSUD tiene un valor promedio para el intervalo igual a `r round(mean(CENCOSUD$close),digits=0)` y su la variación de este se muestra en los siguientes gráficos.
+
+```{r CENCOSUDline}
+#| echo: false
+CENCOSUD %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_line() +
+    labs(title = "CENCOSUD Line Chart", y = "Closing Price", x = "") + 
+    theme_tq() +
+  geom_hline(yintercept=mean(CENCOSUD$close), linetype="dashed", color = "red")
+```
+
+```{r CENCOSUDcandle}
+#| warning: false
+CENCOSUD %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = "Cencosud Candlestick Chart", y = "Closing Price", x = "") +
+    theme_tq()
+```
+
+### Motivación
+
+Este estudio se encuentra en un contexto relevante en el que la compañía chilena Cencosud ha experimentado una expansión significativa en los Estados Unidos y ha realizado adquisiciones notables, como la adquisición del 67% de la cadena de supermercados The Fresh Market por US\$ 676 millones. Esta adquisición ha generado US\$ 210 millones en el EBITDA ajustado de Cencosud en solo 12 meses, y se espera que abra una nueva tienda cada 33 días. 
+
+Los eventos actuales generan interrogantes de relevancia financiera y estratégica no solo para Cencosud sino también para el mercado inmobiliario chileno. ¿Cómo impacta esta expansión en el desempeño de Cencosud y, en consecuencia, en el mercado inmobiliario chileno?  ¿Cómo afecta la percepción de los inversores en Chile, tanto a nivel nacional como internacional, y la demanda de bienes raíces comerciales en Chile?
+
+La rápida expansión de Cencosud en los mercados internaciones merece un análisis exhaustivo, ya que sus efectos pueden ir más allá de la esfera financiera. Esto podría afectar potencialmente la economía chilena, incluida la industria inmobiliaria, dado que Cencosud es un actor importante en la región y podría generar una demanda adicional de propiedades comerciales en el país.
+
+Además, los movimientos de Cencosud en el mercado de valores chileno pueden proporcionar valiosas lecciones para aquellos interesados en los mercados financieros, la estrategia empresarial y el sector inmobiliario. Un estudio integral de cómo la estrategia de expansión de Cencosud impacta su desempeño financiero y su relación con el mercado inmobiliario chileno contribuirá a una comprensión más completa de la dinámica financiera y estratégica en juego.
+
+La inversión con activos inmobiliarios es una forma de inversión alternativa. Estos activos se caracterizan por su baja o nula correlación con los instrumentos de inversión tradicionales, como acciones y bonos, lo que los convierte en una opción atractiva para inversores que buscan diversificar sus carteras. Además, los activos inmobiliarios ofrecen ventajas adicionales, como la protección contra la inflación, beneficios fiscales y la inversión en bienes tangibles, aspectos que adquieren relevancia en un entorno económico en constante cambio. Es igualmente notable que los activos inmobiliarios suelen demostrar resiliencia al mantener retornos positivos incluso durante períodos de crisis económicas. La inclusión de inversiones inmobiliarias en un portafolio puede contribuir a optimizar la relación riesgo-retorno, lo que potencialmente resulta en un mayor rendimiento a un nivel de riesgo reducido. Estas características añaden una dimensión significativa a la dinámica de inversión y al mercado inmobiliario en Chile.
+
+Finalmente, el propósito de este estudio es examinar en detalle cómo los movimientos de Cencosud y/o del mercado inmobiliario tienen un impacto entre ellos, en el mercado bursatil y en el país. Esto ayudará a comprender mejor cómo se relacionan el sector retail y el mercado inmobiliario en Chile, así como las oportunidades y obstáculos que surgen en este contexto. Esto recalcará la importancia de los activos alternativos, en especial de los activos del sector inmobiliario.
+
+### Contexto
+
+La comparación de un activo con un indicador económico apropiado es una práctica común en el ámbito financiero para evaluar su desempeño y comprender su comportamiento en el contexto macroeconómico. En esta ocasión, abordaremos un análisis que integra el Índice de Precios al Consumidor (IPC) de Chile, el cual es un indicador importante para medir la inflación y el costo de vida, junto con las acciones de Cencosud, la empresa a evaluar en el informe. Esta comparación nos permitirá analizar cómo las variaciones del IPC, que reflejan la salud económica general del país, pueden afectar el rendimiento y la rentabilidad de las acciones de Cencosud.
+
+En el gráfico siguiente, podemos observar que los comportamientos de la variación del IPC y los precios de las acciones de Cencosud exhiben similitudes notables. Para respaldar esta observación con evidencia estadística, se realizó un análisis de correlación de Pearson entre ambos conjuntos de datos. El coeficiente de correlación de Pearson mide la fuerza y dirección de la relación lineal entre dos variables, en este caso, la variación del IPC y los precios de Cencosud. Los resultados revelaron un coeficiente de correlación significativo de 0.8365843, con un valor p de 0.009616481.
+
+```{r}
+#| warning: false
+
+library(ggplot2)
+library(dplyr)
+
+# Crear un dataframe con los datos de CENCOSUD.SN
+cencosud_data <- data.frame(
+  Fecha = as.Date(c("2023-01-31", "2023-02-28", "2023-03-31", "2023-04-30", 
+                    "2023-05-31", "2023-06-30", "2023-07-31", "2023-08-31")),
+  Cierre_Cencosud = c(1395.00, 1420.00, 1539.00, 1545.10, 1645.00, 1508.00, 1624.00, 1837.00)
+)
+
+# Crear un dataframe con los datos del IPC
+ipc_data <- data.frame(
+  Fecha = as.Date(c("2023-01-31", "2023-02-28", "2023-03-31", "2023-04-30",
+                    "2023-05-31", "2023-06-30", "2023-07-31", "2023-08-31")),
+  IPC = c(130.05, 129.97, 131.38, 131.79, 131.94, 131.74, 132.2, 132.35)
+)
+
+# Combinar los datos de CENCOSUD.SN y IPC por mes
+combined_data <- merge(cencosud_data, ipc_data, by = "Fecha", all.x = TRUE)
+
+# Crear el gráfico con dos ejes Y
+ggplot(data = combined_data, aes(x = Fecha)) +
+  geom_line(aes(y = Cierre_Cencosud, color = "CENCOSUD.SN"), size = 1) +
+  geom_line(aes(y = IPC * 10, color = "IPC"), size = 1, linetype = "dashed") +  # Multiplica IPC por 10 para ajustar a escala
+  labs(title = "Precios de Cierre de CENCOSUD.SN vs IPC",
+       y = "Precio de Cierre de CENCOSUD.SN",
+       x = "Fecha") +
+  scale_color_manual(values = c("CENCOSUD.SN" = "blue", "IPC" = "red")) +
+  theme_minimal() +
+  scale_y_continuous(
+    sec.axis = sec_axis(~. / 10, name = "IPC", 
+                        labels = scales::dollar_format(scale = 1e-3, suffix = "k"))
+  )
+
+
+
+# Calcular la correlación entre CENCOSUD.SN e IPC
+correlation <- cor(combined_data$Cierre_Cencosud, combined_data$IPC)
+
+# Calcular el valor p para la correlación
+p_value <- cor.test(combined_data$Cierre_Cencosud, combined_data$IPC)$p.value
+
+# Imprimir la correlación y el valor p
+cat("Correlación entre CENCOSUD.SN e IPC:", correlation, "\n")
+cat("Valor p para la correlación:", p_value, "\n")
+
+
+
+# Correlación entre CENCOSUD.SN e IPC: 0.8365843
+# Valor p para la correlación: 0.009616481
+```
+
+Un valor p por debajo de 0.05 indica que la correlación observada es estadísticamente significativa. Esto sugiere que los movimientos en los precios de las acciones de Cencosud están relacionados de manera significativa con las variaciones en el IPC. Dado que la correlación es positiva, podemos concluir que existe una dependencia estadística entre ambas entidades, lo que significa que tienden a moverse en la misma dirección. En otras palabras, cuando el IPC aumenta, es más probable que los precios de las acciones de Cencosud también aumenten, y viceversa.
+
+Ahora, en un análisis similar realizado con los precios de CAP (Compañía de Acero del Pacífico), que se estudia por la posible dependencia del sector inmobiliario hacia los precios de una empresa productora de metales para costrucción, los resultados fueron una correlación negativa de -0,2 y un valor p de 4.41244e-06, y se comportan visualmente como en el siguiente gráfico.
+
+```{r}
+
+# Análisis de Correlación entre Cencosud y CAP
+
+# Cargar las bibliotecas
+library(tidyquant)
+library(ggplot2)
+library(dplyr)
+
+# Definir las fechas de inicio y fin para los últimos 2 años
+end_date <- Sys.Date()
+start_date <- end_date - years(2)
+
+# Obtener los datos de precios de Cencosud y CAP
+cencosud_data <- tq_get("CENCOSUD.SN", from = start_date, to = end_date)
+cap_data <- tq_get("CAP.SN", from = start_date, to = end_date)
+
+# Convertir la columna 'close' de CAP a formato numérico
+cap_data <- cap_data %>%
+  mutate(CAP = as.numeric(close))
+
+# Escala de precios deseados
+cencosud_max_price <- 1500
+cap_max_price <- 7000
+
+# Ajustar los datos de CAP para que estén en la misma escala que Cencosud
+cap_data <- cap_data %>%
+  mutate(CAP = CAP * (cencosud_max_price / cap_max_price))
+
+# Combinar los datos en un solo dataframe
+combined_data <- merge(cencosud_data, cap_data, by = "date")
+
+# Crear el gráfico con dos ejes Y
+gg <- ggplot(data = combined_data, aes(x = date)) +
+  geom_line(aes(y = cencosud_data$close, color = "Cencosud"), size = 1) +
+  geom_line(aes(y = cap_data$CAP, color = "CAP"), size = 1) +
+  labs(title = "Precios de Cierre de Cencosud y CAP en los últimos 2 años",
+       y = "Precio de Cierre de Cencosud",
+       x = "Fecha") +
+  scale_color_manual(values = c("Cencosud" = "blue", "CAP" = "red")) +
+  theme_minimal() +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 5, name = "Precio de Cierre de CAP")
+  )
+gg
+
+
+```
+
+```{r}
+# Calcular la correlación entre Cencosud y CAP
+correlation <- cor(combined_data$close.x, combined_data$CAP)
+
+# Calcular el valor p para la correlación
+p_value <- cor.test(combined_data$close.x, combined_data$CAP)$p.value
+
+# Imprimir la correlación y el valor p
+cat("Correlación entre Cencosud y CAP:", correlation, "\n")
+cat("Valor p para la correlación:", p_value, "\n")
+
+```
+
+Cuando la correlación entre dos variables es negativa y estadísticamente significativa, en este contexto, sugiere que los movimientos en los precios de CAP y las variaciones en el precio de la acción de Cencosud están inversamente relacionados; es decir, cuando el precio de Cencosud aumenta, es más probable que los precios de CAP disminuyan, y viceversa.
+
+Por ultimo, se estudia la variación de precio del Falabella, ya que es una empresa similar y que también se relaciona con el sector inmobiliario. En este analisis se encontró que existe una correlación de -0,015 y un valor p de 0,7270421. Una correlación cercana a cero y un valor p mayor que 0.05 indican que no existe una relación estadísticamente significativa entre las variaciones de precios de Cencosud y Falabella. En otras palabras, no hay evidencia de que los movimientos de precio de una empresa estén relacionados de manera significativa con los de la otra. Esto sugiere que Cencosud y Falabella pueden seguir patrones de precios independientes en el mercado. Los comportamientos de estos dos precios a lo largo del tiempo se pueden observar en el siguiente gráfico.
+
+```{r}
+
+# Análisis de Correlación entre Cencosud y CAP
+
+# Cargar las bibliotecas
+library(tidyquant)
+library(ggplot2)
+library(dplyr)
+
+# Definir las fechas de inicio y fin para los últimos 2 años
+end_date <- Sys.Date()
+start_date <- end_date - years(2)
+
+# Obtener los datos de precios de Cencosud y CAP
+cencosud_data <- tq_get("CENCOSUD.SN", from = start_date, to = end_date)
+FALABELLA_data <- tq_get("FALABELLA.SN", from = start_date, to = end_date)
+
+# Convertir la columna 'close' de CAP a formato numérico
+FALABELLA_data <- FALABELLA_data %>%
+  mutate(FALABELLA = as.numeric(close))
+
+# Escala de precios deseados
+cencosud_max_price <- 1500
+FALABELLA_max_price <- 2500
+
+# Ajustar los datos de CAP para que estén en la misma escala que Cencosud
+FALABELLA_data <- FALABELLA_data %>%
+  mutate(FALABELLA = FALABELLA * (cencosud_max_price / FALABELLA_max_price))
+
+# Combinar los datos en un solo dataframe
+combined_data <- merge(cencosud_data, FALABELLA_data, by = "date")
+
+# Crear el gráfico con dos ejes Y
+gg <- ggplot(data = combined_data, aes(x = date)) +
+  geom_line(aes(y = cencosud_data$close, color = "Cencosud"), size = 1) +
+  geom_line(aes(y = FALABELLA_data$FALABELLA, color = "CAP"), size = 1) +
+  labs(title = "Precios de Cierre de Cencosud y Falabella en los últimos 2 años",
+       y = "Precio de Cierre de Cencosud",
+       x = "Fecha") +
+  scale_color_manual(values = c("Cencosud" = "blue", "CAP" = "red")) +
+  theme_minimal() +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 5, name = "Precio de Cierre de FALABELLA")
+  )
+gg
+
+
+```
+
+```{r}
+# Calcular la correlación entre Cencosud y CAP
+correlation <- cor(combined_data$close.x, combined_data$FALABELLA)
+
+# Calcular el valor p para la correlación
+p_value <- cor.test(combined_data$close.x, combined_data$FALABELLA)$p.value
+
+# Imprimir la correlación y el valor p
+cat("Correlación entre Cencosud y CAP:", correlation, "\n")
+cat("Valor p para la correlación:", p_value, "\n")
+
+```
+
+Sin embargo, es importante tener en cuenta que la correlación no implica causalidad, y otros factores pueden estar influyendo en los movimientos de los precios de la acción de Cencosud. Por lo tanto, es esencial considerar otros análisis y factores económicos antes de tomar decisiones de inversión basadas únicamente en la correlación observada.
+
+### Análisis de Largo Plazo
+
+#### Caracterización deuda (Aplicación cap. 15)
+
+La empresa Cencosud tiene una estructura de capital que incluye tanto acciones preferentes como acciones comunes que se ofrecen en la Bolsa de Santiago. Como ejemplo se puede tomar la emisión del 22 de febrero de 2013, en la cual se pusieron en circulación un total de 332,987,717 acciones. De este total, 299,688,946 acciones se ofrecieron a los accionistas con derecho a opción preferente. Además, se asignaron 33,298,771 acciones para planes de compensación de trabajadores de la Sociedad y de sus filiales, como parte de un programa de incentivos para empleados.
+
+Además de las acciones, la empresa ha utilizado bonos corporativos como una fuente de financiamiento. Por ejemplo, el 25 de noviembre de 2016, se llevó a cabo una emisión de bonos de las series P, Q y R. Estos bonos corporativos representan instrumentos de deuda a largo plazo que Cencosud emitió para recaudar capital.
+
+En resumen, la estructura de capital de la empresa incluye acciones preferentes y comunes, que ofrecen diferentes derechos a los accionistas, y ha utilizado emisiones de bonos corporativos para diversificar sus fuentes de financiamiento. Estas acciones y bonos representan elementos clave de la estrategia financiera de Cencosud y tienen un impacto significativo en su estructura de capital.
+
+#### Caracterización de emisiones históricas (Aplicación cap. 20)
+
+El proceso de emisión de acciones por parte de Cencosud, que incluye tanto acciones comunes como preferentes, se caracteriza por varios pasos fundamentales. A continuación, se describe este proceso paso a paso:
+
+1.  Fecha de Emisión:
+
+    22/02/2013
+
+<!-- -->
+
+2.  Fecha de Pago:
+
+    Acciones Preferentes: La empresa emitió acciones preferentes hasta el 20 de noviembre de 2015.
+
+    Acciones para Planes de Compensación: Se emitieron acciones para planes de compensación de trabajadores hasta el 20 de noviembre de 2017.
+
+3.  Precio de Colocación:
+
+    Acciones Preferentes: Las 299,688,946 acciones preferentes se ofrecieron preferentemente a los accionistas a un precio de \$2,600 por acción. No obstante, el Directorio tenía la facultad de fijar un precio de colocación para aquellas acciones que no fueran suscritas por los accionistas en ejercicio de su derecho de acción preferente o cuyos derechos de opción preferente fueran renunciados, total o parcialmente. El precio también se aplicaba a las fracciones resultantes en el prorrateo entre los accionistas.
+
+    Acciones para Planes de Compensación: El precio de colocación de las acciones destinadas a los planes de compensación de trabajadores de Cencosud S.A. y sus filiales sería determinado por el Directorio en un plazo de 5 años a partir del 20 de noviembre de 2012.
+
+4.  Clasificación de Riesgo:
+
+    Ambos Tipos de Acciones: Las acciones emitidas por Cencosud recibieron una clasificación de "Primera Clase Nivel 1" por parte de las agencias calificadoras de riesgo.
+
+5.  Uso de los Fondos:
+
+    El principal uso de los fondos recaudados a través de la emisión de estas acciones se destinó a prepagar todo o parte del saldo de endeudamiento de corto plazo asumido el 17 de octubre de 2012 con JP Morgan Chase Bank (Bridge Loan Agreement). Este endeudamiento se relacionó con la compra de las operaciones de Carrefour en Colombia. Además, se estableció que el Directorio tenía la flexibilidad de asignar estos fondos a otras necesidades de la Sociedad, según fuera necesario.
+
+    Cabe destacar que, a la fecha del prospecto, el saldo insoluto del Bridge Loan Agreement ascendía a USD\$1,500 millones.
+
+La emisión de bonos Serie P por parte de Cencosud, que se detalla a continuación, comprende los siguientes aspectos clave:
+
+1\. Fecha de Emisión: La emisión de los bonos Serie P tuvo lugar el 25 de noviembre de 2016.
+
+2\. Nemotécnico: Estos bonos se identifican con el nemotécnico "BCENC-P."
+
+3\. Cantidad de Bonos: Se emitieron un total de 5,200 bonos de la Serie P.
+
+4\. Valor Nominal de los Bonos: Cada bono de la Serie P tiene un valor nominal de \$10,000,000 en moneda nacional (pesos chilenos).
+
+5\. Reajustabilidad: En el caso de los bonos de la Serie P, al tratarse de una emisión en pesos, no se considera ningún mecanismo de reajustabilidad o indexación.
+
+6\. Tasa de Interés: Los bonos Serie P devengan un interés del 4.7% anual. Esta tasa de interés está compuesta y se calcula sobre la base de un año de 360 días. De manera equivalente, se traduce en un 2.323% semestral, calculado sobre semestres de 180 días.
+
+7\. Fecha de Inicio del Devengo de Intereses: El devengo de intereses de los bonos Serie P comenzó el 7 de noviembre de 2016.
+
+La emisión de estos bonos proporciona a Cencosud una fuente de financiamiento a través de la colocación de deuda en el mercado. Los inversores que adquieran estos bonos recibirán intereses periódicos y, al vencimiento, el reembolso del valor nominal de los bonos. El hecho de que no se considere reajustabilidad indica que los intereses y el valor nominal de los bonos se mantendrán en términos nominales y no se ajustarán por inflación u otros indicadores económicos. Esta emisión de bonos Serie P es un componente importante de la estructura financiera de la empresa.
+
+#### Relación con activos derivados
+
+Cencosud utiliza derivados financieros para gestionar riesgos relacionados con cambios en tasas de interés y monedas extranjeras. Estos derivados se dividen en tres categorías:
+
+1.  Activos y Pasivos no calificados como cobertura: Cencosud utiliza contratos de permuta de moneda "Forward y Cross currency swaps" para generar flujos futuros en dólares estadounidenses.
+2.  Activos y Pasivos calificados como de cobertura: Cencosud usa derivados, como cross currency swaps (CCS) e interest rate swaps, para cubrir deudas denominadas en diversas monedas. Estos derivados se clasifican como de cobertura de flujo de caja o de cobertura a valor justo y tienen un valor razonable registrado en el balance.
+3.  Activos y Pasivos Derivados designados como de cobertura: Cencosud designa ciertos derivados como instrumentos de cobertura. Los cambios en el valor razonable de estos instrumentos se registran inicialmente en el otro resultado integral y luego se trasladan a la cuenta de resultados en función del riesgo cubierto.
+
+Un ejemplo de un activo derivado de Cencosud es el llamado "Cross Currency Swap" que se ocupa para gestionar el riesgo de cambio. Al final del año 2021, se registró una exposición positiva al valor razonable de M\$ 265.287.661 en los estados financieros, lo que sugiere un posible beneficio relacionado con las fluctuaciones en las tasas de cambio. Además, el monto total de estos instrumentos de cobertura llegó a M\$ 760.221.000 y tenían un plazo de vencimiento de más de un año. Esto significa que la empresa planea mantener estas estrategias de cobertura en marcha durante más tiempo para aprovechar las posibles ventajas que podrían surgir debido a las variaciones en las tasas de cambio.
+
+### Reporte grupal
+
+El objetivo del portafolio es de largo plazo, por lo que se estudiará a más de un año,  buscando retornos altos en el largo plazo y teniendo presente el riesgo que implica esto. El portafolio es de renta variable, por lo que siempre se tendrá que considerar el riesgo que este tipo de inversiones implica.
+
+Para poder obtener las ponderaciones del portafolio, se debe realizar un análisis a cada activo por invertir, donde se consideraron los Beta de cada acción y las industrias pertenecientes a cada activo.
+
+Banco Bci está presente en la industria bancaria donde a grandes rasgos las inversiones están asociadas al manejo de carteras, en donde se analizará específicamente la inversión al Fondo Mutuo de Acciones Globales por parte del grupo Bci. Este fondo es de moneda extranjera el cual invierte principalmente en cuotas del subfondo extranjero, domiciliado en Luxemburgo, denominado "BCI AM SICAV - Global EquityFund".
+
+Colbún es la tercera empresa más grande en el sector eléctrico chileno y ha tenido un aumento en activos en el último año. La empresa ha ido en un crecimiento constante desde que cambió de controlador, siendo dirigida principalmente por la familia Matte, bajo la empresa Minera Valparaíso. Los últimos años ha presentado un plan de largo plazo para generar en gran cantidad energía sustentable, con el fin de alinearse con las necesidades actuales. Aunque actualmente presenta un mes de rentabilidad negativa, su anualidad en los dos últimos años, es de alrededor de un 40%, lo que lo hace una empresa interesante para invertir, considerando un riesgo alto.
+
+Cencosud está invirtiendo fuertemente en Estados Unidos, con una promesa de abrir una nueva tienda cada 33 días. Por lo tanto, las ganancias que obtenga la empresa serán a largo plazo cuando estas comiencen a operar, entonces se espera que el valor de la acción continúe creciendo moderadamente como ha sido a lo largo del año.
+
+Según las estadísticas de Yahoo Finance, los betas de los activos tienen las siguientes cifras; 0.37 COLBÚN, 0.18 BCI, 0.55 CENCOSUD.
+
+|          |       |
+|----------|-------|
+| Activo   | Betas |
+| CENCOSUD | 0.55  |
+| COLBUN   | 0.37  |
+| BCI      | 0.18  |
+
+Además, los retorno anuales de estos respectivamente son; 46.48% para COLBÚN, 11.9% para BCI y 29.97% para CENCOSUD.
+
+|          |              |
+|----------|--------------|
+| Activo   | Rentabilidad |
+| CENCOSUD | 29.97%       |
+| COLBUN   | 46.48%       |
+| BCI      | 11.9%        |
+
+A este portafolio se le invertirá 100 millones de pesos chilenos con las siguientes ponderaciones:
+
+|          |             |
+|----------|-------------|
+| Activo   | Ponderación |
+| CENCOSUD | 30%         |
+| COLBUN   | 50%         |
+| BCI      | 20%         |
+
+Este conjunto de inversiones, diseñado para personas que prefieren un nivel moderadamente alto de seguridad financiera, asigna el 30% de los recursos al activo más arriesgado, que tiene una mayor sensibilidad al riesgo (medida por su beta). Hemos asignado un 20% a BCI, ya que esperamos que tenga una volatilidad limitada debido a su rentabilidad moderada y su baja sensibilidad al riesgo. Además, hemos dado prioridad a los activos que han experimentado un mayor aumento en su valor durante el año, asignándoles una mayor ponderación en la cartera. Finalmente se ponderó un 50% de Colbún para poder obtener el retorno alto esperado, debido a que es una empresa que muestra un beta de 0.37, el cual no lo hace tan riesgosa y tiene los retornos esperados más altos.
+
+```{r}
+
+#| echo: false
+# Alternativamente Use FANG data set
+# data("FANG") 
+end <- as_date("2022-12-31")
+# Get AAPL and AMZN Stock Prices
+# AAPL <- tq_get("AAPL", get = "stock.prices", from = "2015-09-01", to = end)
+# AMZN <- tq_get("AMZN", get = "stock.prices", from = "2000-01-01", to = end)
+CENCOSUD <- tq_get("CENCOSUD.SN", get = "stock.prices", from = "2000-01-01", to = end)
+BCI <- tq_get("BCI.SN", get = "stock.prices", from = "2000-01-01", to = end)
+COLBUN <- tq_get("COLBUN.SN", get = "stock.prices", from = "2000-01-01", to = end)
+
+# Cargar las bibliotecas necesarias
+library(tidyquant)
+library(ggplot2)
+
+# Definir las fechas de inicio y fin para el último año
+end_date <- Sys.Date()
+start_date <- end_date - years(1)
+
+# Filtrar datos para las acciones de BCI, COBLUN y CENCOSUD
+selected_stocks <- c("BCI.SN", "COLBUN.SN", "CENCOSUD.SN")
+stock_data <- tq_get(selected_stocks, from = start_date, to = end_date)
+
+# Asegurarse de que "symbol" sea una variable de factor
+stock_data$symbol <- factor(stock_data$symbol)
+
+# Crear gráficos de velas para las acciones seleccionadas
+stock_data %>%
+  ggplot(aes(x = date, y = close, group = symbol)) +
+  geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+  labs(title = "Candlestick Chart",
+       subtitle = "Stock Price Movement (Last Year)",
+       y = "Closing Price",
+       x = "Date") +
+  coord_x_date(xlim = c(start_date, end_date)) +
+  facet_wrap(~ symbol, ncol = 1, scale = "free_y") +
+  theme_tq()
+
+
+```
+
 ## HITO 2
 
 ### Valoración opciones aplicada
@@ -94,12 +521,10 @@ $$C(S,t) \approx e^{-R \cdot t} \cdot \frac{1}{N} \sum_{i=1}^{N} \max(S_i - K, 0
 \- $R$ es la tasa de interés libre de riesgo.
 
 ```{r}
-# Configuración de parámetros
-n_simulaciones <- 10000  # Número de simulaciones
+n_simulaciones <- 10000 
 n_pasos <- 252  # Número de pasos en cada simulación (aproximadamente 252 días hábiles en un año)
-tiempo_simulacion <- 1  # Tiempo hasta la expiración de la opción en años
+tiempo_simulacion <- 1
 
-# Crear una función para simular el precio del activo subyacente
 simular_precio <- function(S, R, sigma, n_pasos, tiempo_simulacion) {
   dt <- tiempo_simulacion / n_pasos
   precios <- numeric(n_pasos + 1)
@@ -112,7 +537,7 @@ simular_precio <- function(S, R, sigma, n_pasos, tiempo_simulacion) {
   return(precios)
 }
 
-# Realizar las simulaciones
+
 resultados_simulaciones <- numeric(n_simulaciones)
 
 for (i in 1:n_simulaciones) {
@@ -121,7 +546,7 @@ for (i in 1:n_simulaciones) {
   resultados_simulaciones[i] <- precio_opcion_simulacion
 }
 
-# Calcular el precio promedio de la opción de compra mediante Monte Carlo
+
 precio_promedio_monte_carlo <- mean(resultados_simulaciones)
 
 
@@ -130,3 +555,17 @@ cat("Numero de iteraciones:", n_simulaciones, "\n")
 
 
 ```
+
+### Bibliografía
+
+Troncoso, J. (2023, 13 de septiembre). Cencosud acelera el tranco en EEUU: abrirá una nueva tienda cada 33 días. Diario Financiero. Recuperado de https://www.df.cl/empresas/retail/cencosud-acelera-el-tranco-en-eeuu-abrira-una-nueva-tienda-cada-33-dias
+
+Abarca, C. (2022, 11 de julio). Sector inmobiliario y construcción: un enfoque en el mercado chileno. <https://www.solunion.cl/blog/sector-inmobiliario-y-construccion-un-enfoque-en-el-mercado-chileno/#:~:text=De%20los%20sectores%20relevantes%20dentro,un%2013%25%20del%20PIB%20chileno>.
+
+Wang, X., & Ng, C. T. (2020). New retail versus traditional retail in e-commerce: channel establishment, price competition, and consumer recognition. *Annals of Operations Research, 291(1),* 921-937*.* <https://doi.org/10.1007/s10479-018-2994-9>
+
+Raffo, R. (2013, February 23). *PROSPECTO DE EMISIÓN DE ACCIONES DE PAGO, REGISTRADO BAJO EL NÚMERO 970, EL 4 DE FEBRERO DE 2013.* CMF (Comisión para el Mercado Financiero). https://www.cmfchile.cl/sitio/aplic/serdoc/ver_sgd.php?s567=8fc6d63de5a34fd740371b6c912bf0ffVFdwQmVFMTZRWGxOUkVGNFRtcFpNRTVCUFQwPQ==&secuencia=-1&t=1695939874
+
+Pavez, C. (2016, November 25). *PROSPECTO BONOS SERIES P, Q Y R CON CARGO A LA LÍNEA DE BONOS N° 816 A NOVIEMBRE 2016*. CMF (Comisión para el Mercado Financiero). https://www.cmfchile.cl/sitio/aplic/serdoc/ver_sgd.php?s567=92a2fc4442b61e90b0af0cec31881231VFdwQmVFNXFSWGhOUkVVMFRVUkZlRTFCUFQwPQ==&secuencia=-1&t=1695939687
+
+Cencosud SA y Subsidiarias. (2021, December 31). Estados Financieros. https://s2.q4cdn.com/740885614/files/doc_financials/2021/q4/Estados_financieros\_(PDF)93834000_202112.pdf
