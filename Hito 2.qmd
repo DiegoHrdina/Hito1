@@ -1,0 +1,22 @@
+---
+title: "HITO 2"
+author: "Diego Hrdina"
+format: html
+editor: visual
+---
+
+## HITO 2
+
+### Valoración opciones aplicada
+
+Tome en consideración el modelo continuio de Black and Scholes:
+
+$$C(S,t)=S\cdot\Phi(d_1)-K\exp(-R\cdot t)\cdot\Phi(d_2)$$
+
+donde $d_1=\frac{\log\frac{S}{K}+\left(R+\frac{\sigma^2}{2}\right)\cdot t}{\sqrt{\sigma^2\cdot t}}$ y $d_2=d_1-\sqrt{\sigma^2\cdot t}$.
+
+Se definieron los parametros asociados a los valores del activo "CENCOSUD", para luego calcular el valor de una opción de compra.
+
+## Black-Scholes
+
+ccc
