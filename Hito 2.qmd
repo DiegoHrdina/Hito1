@@ -438,7 +438,7 @@ stock_data %>%
 
 A continuación se presentará la valorización de opciones aplicada. Esto tiene como objetivo principal llevar a cabo una comparación exhaustiva de dos métodos fundamentales de valorización de opciones en el ámbito financiero. Para ello, se utilizarán los modelos de Black-Scholes y Monte Carlo. Estos modelos son ampliamente utilizados en el mundo de las finanzas para determinar el precio teórico de opciones financieras y son esenciales para la toma de decisiones estratégicas en los mercados de capitales. La comparación entre estos dos métodos permitirá evaluar sus ventajas y limitaciones en diferentes contextos financieros, brindando una visión clara y completa de su eficacia en la valoración de opciones y su relevancia en la toma de decisiones de inversión.
 
-## Black-Scholes
+### Black-Scholes
 
 Para esto se tomó en consideración el modelo continuio de Black and Scholes, que se representa con la siguiente formula:
 
@@ -498,9 +498,11 @@ cat("d2:", d2, "\n")
 cat("sigma:", sigma, "\n")
 ```
 
-## Simulación Monte Carlo
+### Simulación Monte Carlo
 
 En una simulación Monte Carlo, estimamos el precio de la opción mediante la generación de múltiples escenarios futuros del precio del activo subyacente. El precio de la opción se calcula como el promedio de los pagos de la opción en estos escenarios.
+
+Según Buchner (2015), este modelo es relevante ya que la volatilidad misma es una variable no negociable en los mercados financieros. La utilización del método de Monte Carlo en este contexto permite obtener estimaciones más precisas de los precios de las opciones en un entorno de mercado dinámico y complejo.
 
 Los pasos generales para la simulación Monte Carlo son los siguientes:
 
@@ -558,6 +560,76 @@ cat("Numero de iteraciones:", n_simulaciones, "\n")
 
 ```
 
+### Comparación Modelos
+
+El modelo de Black-Scholes es ampliamente reconocido por su simplicidad y capacidad para proporcionar una estimación rápida y precisa del precio de la opción. Sus resultados son deterministas, lo que significa que el precio calculado es único y no cambia en cada evaluación. Sin embargo, este modelo asume que los precios del activo subyacente siguen un proceso estocástico de logaritmo normal y que la volatilidad es constante, lo que puede limitar su aplicabilidad en situaciones donde estos supuestos no se cumplen. Además, no considera eventos inesperados o saltos en los precios del activo subyacente.
+
+Por otro lado, la simulación Monte Carlo se destaca por su capacidad para manejar una amplia gama de supuestos y condiciones de mercado. Al simular múltiples trayectorias aleatorias de precios del activo subyacente, puede tener en cuenta la volatilidad variable, eventos inesperados y otros factores complejos. Sin embargo, al ser una simulación, el precio de la opción obtenido a través de Monte Carlo puede variar en cada ejecución. Además, requiere una mayor cantidad de cálculos y tiempo de procesamiento en comparación con el modelo de Black-Scholes.
+
+Los resultados de la comparación entre los modelos de Black-Scholes y Monte Carlo revelan observaciones importantes. En primer lugar, el modelo de Black-Scholes arrojó un precio único y determinista para la opción de compra, que en este caso se calculó en 152,9. Este enfoque simplificado es valioso cuando se requiere una valoración rápida y se pueden asumir condiciones estables en el mercado. Por otro lado, la simulación Monte Carlo proporcionó un precio promedio de la opción de compra de 151, pero cabe destacar que este valor puede variar en diferentes ejecuciones debido a la naturaleza estocástica de la simulación. Esto demuestra que el enfoque Monte Carlo tiene en cuenta la variabilidad en los precios y puede proporcionar un rango de resultados más realista.
+
+La diferencia entre estos dos precios destaca la importancia de considerar la incertidumbre en la valoración de opciones. El modelo de Black-Scholes tiende a subestimar esta incertidumbre al proporcionar un único valor, mientras que Monte Carlo refleja de manera más precisa la variabilidad inherente en los mercados financieros. En situaciones donde las condiciones del mercado son más complejas o cambiantes, el enfoque de Monte Carlo puede ser preferible para capturar mejor la incertidumbre y proporcionar estimaciones más realistas del precio de la opción.
+
+### Parte Grupal
+
+#### Administración de capital de trabajo de Kiefer Manufacturing
+
+Hace poco lo contrataron en Kiefer Manufacturing para trabajar en el recién establecido departamento de tesorería. Kiefer Manufacturing es una empresa pequeña que produce cajas de cartón con un nivel muy alto de adaptación en una variedad de tamaños para diferentes compradores. Adam Kiefer, dueño de la firma, trabaja sobre todo en las áreas de ventas y producción. En la actualidad, la administración intenta poner todas las cuentas por cobrar en una pila y todas las cuentas por pagar en otra. Periódicamente, un contador de medio tiempo se presenta para trabajar en ellas. Debido a este sistema desorganizado el área de finanzas necesita trabajo, y esta es la razón por la que lo contrataron. 
+
+En este momento, la compañía tiene un saldo de efectivo de 1495000 dólares y planea comprar máquinas nuevas en el tercer trimestre a un costo de 260000 dólares. La adquisición de la maquinaria se pagará en efectivo debido al descuento ofrecido por comprarla al contado. Adam quiere mantener un saldo mínimo de efectivo de 90000 dólares para protegerse de las contingencias. Todas las ventas de Kiefer a los clientes y las compras a los proveedores se realizan a crédito y no se ofrecen ni se toman descuentos. 
+
+La compañía tuvo las siguientes ventas en cada trimestre del año que acaba de terminar: 
+
+|               |          |        |        |        |
+|---------------|----------|--------|--------|--------|
+|               | T1       | T2     | T3     | T4     |
+| Ventas brutas | \$735000 | 761000 | 817000 | 709000 |
+
+Después de ciertas investigaciones y conversaciones con los clientes, usted proyecta que las ventas aumenten 8% en cada trimestre del próximo año. También se espera que las ventas del primer trimestre del próximo año aumenten 8%. Usted calcula que Kiefer tiene en la actualidad un periodo de cuentas por cobrar de 57 días y un saldo de cuentas por cobrar de 553000 dólares. Sin embargo, el 10% del saldo de las cuentas por cobrar corresponde a una compañía que acaba de declararse en quiebra y es probable que esa parte jamás llegue a cobrarse. 
+
+También ha calculado que Kiefer acostumbra pedir suministros cada trimestre por una cantidad igual a 50% de las ventas brutas proyectadas para el siguiente trimestre y, en promedio, paga a los proveedores en 53 días. Los salarios, impuestos y otros costos representan alrededor de 25% de las ventas brutas. La compañía tiene que efectuar un pago trimestral de intereses de 1480000 dólares sobre su deuda a largo plazo. Por último, la empresa utiliza un banco de la localidad para satisfacer sus necesidades financieras de corto plazo. En la actualidad paga 1.2% trimestral sobre todos los préstamos a corto plazo y mantiene una cuenta del mercado de dinero que paga 0.5% trimestral sobre todos los depósitos a corto plazo.
+
+Adam le ha pedido que prepare un presupuesto de efectivo y un plan financiero a corto plazo para la compañía, de conformidad con las políticas actuales. También le ha solicitado que prepare otros planes basados en cambios hechos en varios de los conceptos.
+
+1.  Use las cifras proporcionadas para elaborar un presupuesto de efectivo y el plan financiero a corto plazo.
+
+2.  Reelabore el presupuesto de efectivo y el plan financiero a corto plazo, suponiendo que Kiefer cambia a un saldo mínimo de efectivo de 70000 dólares.
+
+3.  Calcule nuevamente el presupuesto de ventas suponiendo un índice de crecimiento de 5% y 11% de las ventas. Suponga que el objetivo es contar con un saldo de efectivo de 900000 dólares.
+
+4.  Suponiendo que la compañía mantiene su saldo de efectivo deseado en 90000 dólares, ¿que tasa de crecimiento de las ventas daría por resultado que no hubiera necesidad de pedir financiamiento a corto plazo? Para responder esta pregunta es posible que necesite preparar una hoja de cálculo y usar la función \"Solver\" de Excel.
+
+Respuestas: 
+
+1.  Se espera un aumento de 8% en las ventas de cada trimestre, y como las ventas del primer trimestre actual fueron 735000, lo que multiplicado por el 8%. T1 A 2= 735000\*1.08=793800 . Luego las cuentas por cobrar cobrar serán iguales al pronóstico de ventas multiplicado por el periodo de cuentas por cobrar, luego se resta el porcentaje \"incobrable\" Cuentas por cobrar=(793800\*57365)- (10%\*793800)=124446. Por el lado del forecast de suministros se calcula como Suministros T1 A2=50% de ventas proyectadas para T2=50% de 793800=396900. Pagos a proveedores, la empresa se demora en promedio 53 días en pagarle a sus proveedores, por lo tanto la ecuación queda de la siguiente manera Pagos a proveedores T1 A2=53365\*793800= 115140. Siguiendo con los costos que se proyectan, los cuales se definieron como el 25% del forecast de ventas, por lo que corresponde a Costos=25%\*793800= 198450. El flujo de efectivo neto para T1 A2 va a ser igual a las ventas proyectadas menos el pagos a proveedores menos los costos Flujo de Efectivo Neto= 793800-115140-198450=480210. Con todo lo anterior podemos calcular el saldo de efectivo al final de T1A2, el cual se define como Saldo de efectivo al final de T1A2=1495000+480210=1975210
+
+De forma más ordenada se procederá a dejar una tabla con la información de los cálculos para cada uno de los trimestres.
+
+››››
+
+|                                          |             |             |             |             |
+|------------------------------------------|-------------|-------------|-------------|-------------|
+|                                          | Trimestre 1 | Trimestre 2 | Trimestre 3 | Trimestre 4 |
+| Ventas proyectadas                       | 793800      | 857424      | 944837      | 890408      |
+| Cuentas por cobrar                       | 124446      | 134595      | 148301      | 139524      |
+| Suministros proyectados                  | 396900      | 437410      | 412062      | 396900      |
+| Pagos a proveedores                      | 115140      | 123781      | 136511      | 129649      |
+| Costos proyectados                       | 198450      | 214356      | 236209      | 222602      |
+| Flujo de Efectivo Neto                   | 480210      | 519287      | 572117      | 538157      |
+| Saldo de Efectivo al Final del Trimestre | 1975210     | 2494497     | 3066614     | 3604771     |
+
+2.  Realizar este cambio en el saldo mínimo de efectivo solo implica que la empresa va a reducir su \"colchón\" económico, con lo que estaría dispuesto a poner mayor cantidad de efectivo en circulación para conseguir sus objetivos y poder suplir la demanda solicitada. Como se puede ver en la tabla anterior, tanto para 90000 dólares como para los 70000 dólares no será necesario, ya que el flujo mínimo está muy por encima del mínimo, debido a esto Kiefer no presentará problemas económicos según sus proyecciones.
+
+3.  Para calcular nuevamente el presupuesto de ventas con un crecimiento de 5% y 11% en las ventas con respecto al trimestre del año anterior y como dice manteniendo el saldo mínimo en lo que Adam propuso, lo que es un valor de 90000. A continuación se encontrará una tabla resumen de los resultado:  
+
+|                    |             |             |             |             |
+|--------------------|-------------|-------------|-------------|-------------|
+| Ventas             | Trimestre 1 | Trimestre 2 | Trimestre 3 | Trimestre 4 |
+| Crecimiento de 5%  | 833490      | 900295      | 992079      | 935928      |
+| Crecimiento de 11% | 881778      | 950590      | 1048264     | 988653      |
+
+Por lo que se puede ver en la tabla, habría problemas para suplir en ambos casos las proyecciones de ventas del trimestre 1 siguiente, debido a esto se tendrá que buscar alguna solución la cual puede ser desde evaluar opciones de inversiones para suplir el excedente, estudiar la demanda con un caso de sensibilidad, negociar pagos con los proveedores, al igual de negociar los costos con los mismos, optimizar la logística para reducir costos, entre otras cosas.
+
 ### Bibliografía
 
 Troncoso, J. (2023, 13 de septiembre). Cencosud acelera el tranco en EEUU: abrirá una nueva tienda cada 33 días. Diario Financiero. Recuperado de https://www.df.cl/empresas/retail/cencosud-acelera-el-tranco-en-eeuu-abrira-una-nueva-tienda-cada-33-dias
@@ -571,3 +643,5 @@ Raffo, R. (2013, February 23). *PROSPECTO DE EMISIÓN DE ACCIONES DE PAGO, REGIS
 Pavez, C. (2016, November 25). *PROSPECTO BONOS SERIES P, Q Y R CON CARGO A LA LÍNEA DE BONOS N° 816 A NOVIEMBRE 2016*. CMF (Comisión para el Mercado Financiero). https://www.cmfchile.cl/sitio/aplic/serdoc/ver_sgd.php?s567=92a2fc4442b61e90b0af0cec31881231VFdwQmVFNXFSWGhOUkVVMFRVUkZlRTFCUFQwPQ==&secuencia=-1&t=1695939687
 
 Cencosud SA y Subsidiarias. (2021, December 31). Estados Financieros. https://s2.q4cdn.com/740885614/files/doc_financials/2021/q4/Estados_financieros\_(PDF)93834000_202112.pdf
+
+Buchner, A. (2015). Equilibrium option pricing: A Monte Carlo approach. *Finance Research Letters, 15*, 138-145. <https://doi.org/10.1016/j.frl.2015.09.004>
