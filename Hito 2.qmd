@@ -1,5 +1,5 @@
 ---
-title: "HITO 2"
+title: "HITO2"
 author: "Diego Hrdina"
 format: html
 editor: visual
@@ -436,15 +436,17 @@ stock_data %>%
 
 ### Valoración opciones aplicada
 
-Tome en consideración el modelo continuio de Black and Scholes:
+A continuación se presentará la valorización de opciones aplicada. Esto tiene como objetivo principal llevar a cabo una comparación exhaustiva de dos métodos fundamentales de valorización de opciones en el ámbito financiero. Para ello, se utilizarán los modelos de Black-Scholes y Monte Carlo. Estos modelos son ampliamente utilizados en el mundo de las finanzas para determinar el precio teórico de opciones financieras y son esenciales para la toma de decisiones estratégicas en los mercados de capitales. La comparación entre estos dos métodos permitirá evaluar sus ventajas y limitaciones en diferentes contextos financieros, brindando una visión clara y completa de su eficacia en la valoración de opciones y su relevancia en la toma de decisiones de inversión.
+
+## Black-Scholes
+
+Para esto se tomó en consideración el modelo continuio de Black and Scholes, que se representa con la siguiente formula:
 
 $$C(S,t)=S\cdot\Phi(d_1)-K\exp(-R\cdot t)\cdot\Phi(d_2)$$
 
 donde $d_1=\frac{\log\frac{S}{K}+\left(R+\frac{\sigma^2}{2}\right)\cdot t}{\sqrt{\sigma^2\cdot t}}$ y $d_2=d_1-\sqrt{\sigma^2\cdot t}$.
 
 Se definieron los parametros asociados a los valores del activo "CENCOSUD", para luego calcular el valor de una opción de compra.
-
-## Black-Scholes
 
 ```{r}
 library(tidyverse)
