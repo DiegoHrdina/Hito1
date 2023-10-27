@@ -518,7 +518,7 @@ $$C(S,t) \approx e^{-R \cdot t} \cdot \frac{1}{N} \sum_{i=1}^{N} \max(S_i - K, 0
 
 \- $S_i$ es el precio del activo subyacente en el tiempo de vencimiento (t).
 
-\- $K$ es el precio de ejercicio de la opción.
+\- $K$ es el precio de ejercicio de la opción. Se eligió 1.400 ya que es levemente menor al precio actual.
 
 \- $N$ es el número de escenarios de simulación.
 
